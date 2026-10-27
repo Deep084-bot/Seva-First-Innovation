@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bharuch Unified Works Portal - Demo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{--bg:#eef2f5;--card:#fff;--ink:#14213d;--mut:#5b6678;--line:#d5dce5;--acc:#0f766e;--warn:#b45309;--bad:#b91c1c;--ok:#15803d;--c1:#0f766e;--c2:#7c3aed;--c3:#b45309;--c4:#1d4ed8;--c5:#be185d}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1623;--card:#172235;--ink:#e6ecf5;--mut:#9aa7bd;--line:#2a384f;--acc:#2dd4bf;--warn:#fbbf24;--bad:#f87171;--ok:#4ade80;--c1:#2dd4bf;--c2:#a78bfa;--c3:#fbbf24;--c4:#60a5fa;--c5:#f472b6}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,"Segoe UI","Noto Sans Gujarati",Roboto,sans-serif}
+header{padding:18px 16px 0;max-width:1200px;margin:auto}
+h1{font:700 24px/1.2 Georgia,serif;margin:0}
+.sub{color:var(--mut);margin:6px 0 10px;max-width:90ch}
+.demo-banner{background:linear-gradient(90deg,#fbbf24,#f59e0b);color:#78350f;padding:10px 14px;border-radius:8px;margin:10px 0;border:1px solid #f59e0b;font-weight:600;font-size:13px}
+nav{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);align-items:center}
+nav button{background:none;border:0;border-bottom:3px solid transparent;color:var(--mut);padding:10px 14px;font:600 14px system-ui,sans-serif;cursor:pointer}
+nav button[aria-selected=true]{color:var(--ink);border-color:var(--acc)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+main{max-width:1200px;margin:auto;padding:16px}
+.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,0.02)}
+.kpi b{display:block;font:700 28px Georgia,serif}.kpi span{color:var(--mut);font-size:13px}
+h2{font:700 18px Georgia,serif;margin:0 0 12px}
+h3{font:700 16px Georgia,serif;margin:0 0 8px}
+.bar{display:grid;grid-template-columns:150px 1fr 110px;gap:10px;align-items:center;margin:8px 0;font-size:13px}
+.bar i{display:block;height:16px;border-radius:4px}.bar .t{background:var(--bg);border-radius:4px;border:1px solid var(--line)}
+.tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;border:1px solid currentColor;white-space:nowrap;font-weight:600}
+.s-Completed{color:var(--ok)}.s-In{color:var(--c4)}.s-Approved{color:var(--c2)}.s-Proposed{color:var(--warn)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px}
+#map{height:500px;border-radius:10px;border:1px solid var(--line);margin-top:12px;z-index:0}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px;color:var(--ink)}
+select,input,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;font-size:14px}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:600 14px system-ui,sans-serif;cursor:pointer;margin:12px 8px 0 0;transition:opacity 0.2s}
+@media (prefers-color-scheme:dark){.btn{color:#06201d}}
+.btn:hover{opacity:0.9}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.btn.alt{background:none;color:var(--ink);border:1px solid var(--line)}
+.res{border-left:4px solid;padding:12px 14px;border-radius:0 8px 8px 0;background:var(--bg);margin-top:12px}
+.res.bad{border-color:var(--bad)}.res.mid{border-color:var(--warn)}.res.ok{border-color:var(--ok)}
+.res h3{margin:0 0 6px;font-size:15px}.res ul{margin:6px 0 0;padding-left:20px;font-size:13px;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600;background:var(--bg)}.scroll{overflow-x:auto}
+.hint{font-size:12px;color:var(--mut);margin:6px 0 0;line-height:1.4}
+.heat{display:flex;flex-wrap:wrap;gap:6px}.heat span{padding:7px 12px;border-radius:8px;font-size:13px;border:1px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:130px}.row.fit>*{flex:0 0 auto}
+.leg{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;margin-top:10px;color:var(--mut);padding:10px;background:var(--bg);border-radius:8px}
+nav select{width:auto;padding:6px 10px}
+.alert{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px}
+.alert.info{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+@media (prefers-color-scheme:dark){.alert.info{background:#1e3a8a;color:#bfdbfe;border:1px solid #3b82f6}}
+.alert.warn{background:#fef3c7;color:#92400e;border:1px solid #fbbf24}
+@media (prefers-color-scheme:dark){.alert.warn{background:#78350f;color:#fcd34d;border:1px solid #f59e0b}}
+.disclosure{background:var(--bg);padding:10px 12px;border-radius:8px;border:1px solid var(--line);font-size:12px;color:var(--mut);margin:10px 0;line-height:1.5}
+.badge{display:inline-block;padding:3px 8px;background:var(--warn);color:#fff;border-radius:6px;font-size:11px;font-weight:700;margin-left:6px}
+@media (max-width:640px){.g4{grid-template-columns:1fr 1fr}.bar{grid-template-columns:1fr}.row{flex-direction:column;align-items:stretch}.row>*{min-width:100%}}
+</style>
+</head>
+<body>
+<header>
+<h1 id="h1">Bharuch Unified Works Portal</h1>
+<p class="sub">Cross-department coordination portal for development works in Bharuch district. <strong>Demonstration prototype</strong> — not an official government system.</p>
+<div class="demo-banner">
+  ⚠️ DEMO MODE — Illustrative records and approximate locations only. This is NOT an official District Development Office registry. All data is synthetic.
+</div>
+<nav role="tablist" id="nav"></nav>
+</header>
+<main id="app"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+const SCH={FC:["Finance Commission (Panchayat)","#0f766e"],GIDC:["GIDC notified area","#7c3aed"],RB:["Roads & Buildings","#b45309"],DMF:["District Mineral Foundation","#1d4ed8"],TDD:["Tribal Development","#be185d"]};
+const TYPES=["Road","Drain","School room","Water pipeline","Community hall","Street light"];
+const V={Amod:[21.993,72.878],Jambusar:[22.0505,72.8001],Bharuch:[21.7051,72.9959],Vagra:[21.832,72.664],Hansot:[21.5846,72.8063],Ankleshwar:[21.6264,73.0152],Jhagadia:[21.7321,73.1126],Valia:[21.72,73.2],Netrang:[21.6559,73.3547]};
+
+const MATCH_CONFIG={
+  candidateRadiusM:400,
+  textSimThreshold:0.4,
+  recentCompletionYears:5,
+  minScoreHigh:3,
+  minScoreMid:2
+};
+
+const RAW=[
+["BRH-2023-FC-0011","FC","Amod","Road","Amod to Kavi approach road",42,"Completed",2023,-10,5,30,30],
+["BRH-2024-RB-0032","RB","Bharuch","Road","Bharuch Zadeshwar link road",120,"Completed",2024,0,0,35,25],
+["BRH-2022-GIDC-0005","GIDC","Ankleshwar","Drain","GIDC phase 2 storm drain",85,"Completed",2022,0,0,25,15],
+["BRH-2024-DMF-0019","DMF","Jhagadia","School room","Jhagadia primary school, 4 rooms",64,"In progress",2024,0,0,null,null],
+["BRH-2024-TDD-0041","TDD","Netrang","Road","Netrang to Sarpanch faliya road",38,"Completed",2024,-10,-5,15,20],
+["BRH-2025-FC-0058","FC","Valia","Water pipeline","Valia village pipeline extension",55,"In progress",2025,-5,-5,15,15],
+["BRH-2025-DMF-0063","DMF","Valia","Road","Valia market approach road",47,"Approved",2025,5,5,-20,0],
+["BRH-2023-FC-0017","FC","Vagra","Community hall","Vagra gram panchayat hall",30,"Completed",2023,0,0,null,null],
+["BRH-2024-RB-0036","RB","Jambusar","Road","Jambusar Kaveli state road repair",150,"In progress",2024,0,0,30,25],
+["BRH-2025-TDD-0071","TDD","Jhagadia","Street light","Jhagadia tribal hamlet solar lights",12,"Approved",2025,10,10,null,null],
+["BRH-2024-FC-0044","FC","Hansot","Drain","Hansot village covered drain",33,"Completed",2024,0,0,20,10],
+["BRH-2025-GIDC-0049","GIDC","Ankleshwar","Road","Ankleshwar GIDC internal road",96,"Proposed",2025,-5,-5,30,7],
+["BRH-2022-FC-0003","FC","Amod","Street light","Amod LED street lights",9,"Completed",2022,2,-2,null,null],
+["BRH-2024-DMF-0024","DMF","Netrang","Water pipeline","Netrang mining belt drinking water line",72,"In progress",2024,3,5,-20,35],
+["BRH-2023-RB-0027","RB","Vagra","Road","Vagra Dahej connecting road",110,"Completed",2023,0,0,-35,-35],
+["BRH-2025-TDD-0066","TDD","Bharuch","School room","Ashram shala extra classrooms",40,"Proposed",2025,7,-5,null,null]
+];
+
+const off=(v,e,s)=>[+(V[v][0]-s*.00054).toFixed(5),+(V[v][1]+e*.00058).toFixed(5)];
+let W=RAW.map(r=>({
+  id:r[0],s:r[1],v:r[2],t:r[3],n:r[4],c:r[5],st:r[6],y:r[7],
+  a:off(r[2],r[8],r[9]),
+  b:r[10]==null?null:off(r[2],r[10],r[11]),
+  log:["Record created (synthetic demo data)"],
+  src:"synthetic",
+  approx:true
+}));
+const W0=JSON.stringify(W);
+try{const x=localStorage.getItem("bwlive_v2");if(x){const p=JSON.parse(x);if(Array.isArray(p)&&p.length)W=p;}}catch(_){}
+
+const sv=()=>{try{localStorage.setItem("bwlive_v2",JSON.stringify(W))}catch(_){};
+try{localStorage.setItem("bwlive_audit",JSON.stringify(auditLog))}catch(_){}};
+
+const GU={
+  "Bharuch Unified Works Portal":"ભરૂચ એકીકૃત વિકાસ કાર્ય પોર્ટલ",
+  "Dashboard":"ડેશબોર્ડ",
+  "Map & registry":"નકશો અને નોંધણી",
+  "Propose a work":"કાર્ય પ્રસ્તાવ",
+  "Bulk import":"બલ્ક આયાત",
+  "Public view":"જાહેર દૃશ્ય",
+  "Check for duplicates":"ડુપ્લિકેટ તપાસો",
+  "Tests & evaluation":"પરીક્ષણ અને મૂલ્યાંકન"
+};
+
+let role="DDO",lang="en",tab="dash",mapSel=null,impMsg="",res=null,filt={q:"",s:"",st:""},view={c:[21.78,73.05],z:9},map=null,layer=null,pinL=null,MK={};
+let proposalsWithdrawn=0, overlapsFlaggedSession=0, casesReviewedSession=0, confirmedDuplicatesSession=0;
+let auditLog=[];
+
+try{const al=localStorage.getItem("bwlive_audit");if(al)auditLog=JSON.parse(al);}catch(_){}
+
+const t=s=>lang=="gu"&&GU[s]?GU[s]:s;
+const ST=s=>"s-"+(s.split(" ")[0]);
+const NX={Proposed:"Approved",Approved:"In progress","In progress":"Completed"};
+let P={village:"Valia",type:"Road",name:"Valia bazaar road",scheme:"FC",cost:45,pos:off("Valia",-3,1)};
+
+const norm=s=>(s||"").toString().toLowerCase()
+  .replace(/\brd\.?/g,"road")
+  .replace(/\bmarg\b/g,"road")
+  .replace(/\bnr\.?/g,"near")
+  .replace(/\bopp\.?/g,"opposite")
+  .replace(/[^a-z0-9 ]/g," ")
+  .replace(/\s+/g," ")
+  .trim()
+  .split(/\s+/)
+  .filter(w=>w.length>2&&!["the","and","for","near","with"].includes(w));
+
+function sim(a,b){
+  const A=new Set(norm(a)),B=new Set(norm(b));
+  if(!A.size||!B.size)return 0;
+  let i=0;A.forEach(x=>{if(B.has(x))i++});
+  const u=A.size+B.size-i;
+  return u===0?0:i/u;
+}
+
+function dm(p,w){
+  const k=Math.cos(p[0]*Math.PI/180)*111320,j=110540;
+  const pt=q=>[(q[1]-p[1])*k,(q[0]-p[0])*j];
+  const A=pt(w.a),B=w.b?pt(w.b):A;
+  const dx=B[0]-A[0],dy=B[1]-A[1],l=dx*dx+dy*dy;
+  let u=l?(-A[0]*dx-A[1]*dy)/l:0;
+  u=Math.max(0,Math.min(1,u));
+  return Math.hypot(A[0]+u*dx,A[1]+u*dy);
+}
+
+function sharedMatch(candidate, proposed){
+  const out=[],evidence=[];
+  const d=dm(proposed.pos, candidate);
+  const sameType=candidate.t===proposed.type;
+  const ns=sim(proposed.name, candidate.n);
+  let score=0;
+  
+  if(sameType && d <= MATCH_CONFIG.candidateRadiusM){
+    evidence.push(`Same work type, approx ${Math.round(d)} m from proposed location (point-to-point; geometry approximate)`);
+    score+=3;
+  } else if(d <= MATCH_CONFIG.candidateRadiusM){
+    evidence.push(`Within approx ${Math.round(d)} m (different work type) — proximity alone not conclusive`);
+  }
+  if(sameType && candidate.v===proposed.village && ns >= MATCH_CONFIG.textSimThreshold){
+    evidence.push(`Same village and type; name similarity ~${Math.round(ns*100)}% after normalization`);
+    score+=2;
+  } else if(candidate.v===proposed.village && ns >= MATCH_CONFIG.textSimThreshold){
+    evidence.push(`Same village; name similarity ~${Math.round(ns*100)}% (different work type)`);
+  }
+  if(sameType && candidate.v===proposed.village && candidate.st==="Completed" && proposed.y - candidate.y <= MATCH_CONFIG.recentCompletionYears){
+    evidence.push(`Completed in ${candidate.y} under another grant; within ${MATCH_CONFIG.recentCompletionYears} years`);
+    score+=1;
+  }
+  
+  let cls="No potential match";
+  if(score>=MATCH_CONFIG.minScoreHigh) cls="High-priority potential overlap";
+  else if(score>=MATCH_CONFIG.minScoreMid) cls="Possible overlap requiring review";
+  else if(evidence.length) cls="Weak similarity or informational match";
+  
+  return {w:candidate,d,ns,score,evidence,cls,sameType};
+}
+
+function check(){
+  const out=[];
+  W.forEach(w=>{
+    const m=sharedMatch(w,P);
+    if(m.score>=1 || (m.d<=MATCH_CONFIG.candidateRadiusM && m.ns>=0.25)) out.push(m);
+  });
+  overlapsFlaggedSession = Math.max(overlapsFlaggedSession, out.filter(x=>x.score>=1).length);
+  return out.sort((a,b)=>b.score-a.score);
+}
+
+const $=id=>document.getElementById(id);
+const T=[["dash","Dashboard"],["map","Map & registry"],["new","Propose a work"],["imp","Bulk import"],["pub","Public view"],["tests","Tests & evaluation"]];
+
+function nav(){
+  $("nav").innerHTML=T.map(([k,l])=>`<button role="tab" aria-selected="${tab==k}" data-t="${k}">${t(l)}</button>`).join("")+
+  `<span style="margin-left:auto;font-size:12px;color:var(--mut);padding:6px 10px;background:var(--bg);border-radius:6px" title="Role simulation only — not authenticated">👤 Prototype role simulation: ${role}</span>`+
+  `<select id="role" aria-label="Role"><option value="DDO" ${role=="DDO"?"selected":""}>Collector / DDO</option><option value="Dept" ${role=="Dept"?"selected":""}>Department officer</option><option value="Public" ${role=="Public"?"selected":""}>Citizen</option></select>`+
+  `<select id="lang" aria-label="Language"><option value="en" ${lang=="en"?"selected":""}>English</option><option value="gu" ${lang=="gu"?"selected":""}>ગુજરાતી</option></select>`;
+  $("h1").textContent=t("Bharuch Unified Works Portal");
+  document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+  $("role").onchange=e=>{role=e.target.value;render()};
+  $("lang").onchange=e=>{lang=e.target.value;render()};
+}
+
+function legend(){return `<div class="leg">${Object.values(SCH).map(v=>`<span><i class="sw" style="background:${v[1]}"></i>${v[0]}</span>`).join("")}<span><i class="sw" style="background:#666;border:2px dashed #fff"></i>Proposed (dashed)</span><span>ℹ️ Approximate locations (demo)</span></div>`}
+
+function dash(){
+  const tot=W.reduce((a,w)=>a+(+w.c||0),0);
+  const done=W.filter(w=>w.st=="Completed").length;
+  const ip=W.filter(w=>w.st=="In progress").length;
+  const app=W.filter(w=>w.st=="Approved").length;
+  const prop=W.filter(w=>w.st=="Proposed").length;
+  const by=Object.keys(SCH).map(k=>[k,W.filter(w=>w.s==k).reduce((a,w)=>a+(+w.c||0),0),W.filter(w=>w.s==k).length]),mx=by.length?Math.max(...by.map(b=>b[1]),1):1;
+  const cnt=Object.keys(V).map(v=>[v,W.filter(w=>w.v==v).length]).sort((a,b)=>a[1]-b[1]);
+  
+  return `<div class="disclosure">
+    <strong>Data source:</strong> Synthetic demonstration records only. Coordinates are approximate (generated from village centroids with offsets). Costs, statuses, and identifiers are illustrative — not verified official data. No claim of DDO approval/adoption.
+  </div>
+  <div class="grid g4">
+    <div class="card kpi"><b>${W.length}</b><span>Works in registry</span></div>
+    <div class="card kpi"><b>₹${tot.toFixed(1)} L</b><span>Total recorded project value <span class="hint">(not necessarily sanctioned)</span></span></div>
+    <div class="card kpi"><b>${done}</b><span>Completed</span></div>
+    <div class="card kpi"><b>${ip}</b><span>In progress</span></div>
+    <div class="card kpi"><b>${app}</b><span>Approved</span></div>
+    <div class="card kpi"><b>${prop}</b><span>Proposed</span></div>
+  </div>
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card kpi"><b>${overlapsFlaggedSession}</b><span>Potential overlaps flagged (session)</span></div>
+    <div class="card kpi"><b>${casesReviewedSession}</b><span>Cases reviewed (session)</span></div>
+    <div class="card kpi"><b>${proposalsWithdrawn}</b><span>Proposals withdrawn during review (session)</span></div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h2>Recorded value by scheme</h2>
+      <p class="hint" style="margin-top:-6px">Sum of costs in registry; label says "recorded" not "sanctioned" as dataset lacks confirmed sanction metadata.</p>
+      ${by.map(b=>`<div class="bar"><span>${SCH[b[0]][0].split(" (")[0]}</span><div class="t"><i style="width:${(b[1]/mx*100).toFixed(1)}%;background:${SCH[b[0]][1]}"></i></div><span>₹${b[1].toFixed(1)} L · ${b[2]}</span></div>`).join("")}
+    </div>
+    <div class="card">
+      <h2>Registered works by village</h2>
+      <p class="hint" style="margin-top:-6px">Counts records in current registry only — <strong>not</strong> a validated infrastructure gap analysis.</p>
+      <div class="heat">${cnt.map(([v,n])=>`<span style="background:color-mix(in srgb,var(--acc) ${Math.min(n*15,70)}%,var(--card))"><b>${v}</b> ${n}</span>`).join("")}</div>
+      <div class="alert warn" style="margin-top:10px">
+        <strong>Note:</strong> Fewer registered works do not automatically mean greater need. Validate population, service coverage, asset condition, and data completeness before prioritizing.
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h2>Methodology & limitations (demo)</h2>
+    <ul style="margin:8px 0 0;padding-left:20px;font-size:13px;line-height:1.6">
+      <li><strong>Matching:</strong> Rule-based (proximity + text similarity + type/village/history). Explainable, not a calibrated probability model.</li>
+      <li><strong>Geospatial:</strong> Point-to-point approximation for proximity; road-segment overlap not precisely computed. "Within 400m" is candidate retrieval, not proof of duplication.</li>
+      <li><strong>Data:</strong> Synthetic demo set. Coordinates approximate. No official integration (PFMS/e-Gram Swaraj/GIS) — labeled as future work requiring authorization.</li>
+      <li><strong>AuthZ:</strong> Role selector is UI simulation only (client-side). No authentication/authorization backend.</li>
+      <li><strong>Audit:</strong> Browser-local log; not tamper-proof.</li>
+    </ul>
+  </div>`;
+}
+
+function filtered(){return W.filter(w=>(!filt.s||w.s==filt.s)&&(!filt.st||w.st==filt.st)&&(!filt.q||(w.n+w.v+w.t+w.id).toLowerCase().includes(filt.q.toLowerCase())))}
+function filters(){return `<div class="row"><input id="fq" placeholder="Search work ID, title, village, type" value="${filt.q}"><select id="fs"><option value="">All schemes</option>${Object.entries(SCH).map(([k,v])=>`<option value="${k}" ${filt.s==k?"selected":""}>${v[0]}</option>`).join("")}</select><select id="fst"><option value="">All statuses</option>${["Completed","In progress","Approved","Proposed"].map(s=>`<option ${filt.st==s?"selected":""}>${s}</option>`).join("")}</select><button class="btn alt" id="clr" style="margin:0;flex:0 0 auto">Clear filters</button></div>`}
+function placeSearch(){return `<div class="row" style="margin-top:10px"><input id="pq" placeholder="Find a village/place on map (OpenStreetMap)"><button class="btn alt" id="pg" style="margin:0;flex:0 0 auto">Find place</button></div><p class="hint" id="pm"></p>`}
+function rows(L){return L.map(w=>`<tr data-id="${w.id}" style="cursor:pointer" title="Click to view details"><td><code>${w.id}</code></td><td>${escapeHtml(w.n)}</td><td>${escapeHtml(w.v)}</td><td>${escapeHtml(w.t)}</td><td><i class="sw" style="background:${SCH[w.s][1]}"></i>${SCH[w.s][0].split(" (")[0]}</td><td>₹${w.c} L</td><td><span class="tag ${ST(w.st)}">${escapeHtml(w.st)}</span></td><td>${w.src==="synthetic"?"<span class='badge'>DEMO</span>":""}</td></tr>`).join("")||`<tr><td colspan="8">No works match current filters.</td></tr>`}
+function escapeHtml(s){return (s+"").replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));}
+
+function detail(){
+  const w=W.find(x=>x.id==mapSel);if(!w)return "";
+  const n=NX[w.st];
+  const canEdit = role!=="Public";
+  return `<h2>${escapeHtml(w.n)}</h2>
+  <p style="margin:0 0 8px">${w.id} · ${SCH[w.s][0]} · ${escapeHtml(w.v)} · ${escapeHtml(w.t)} · ₹${w.c} L · <span class="tag ${ST(w.st)}">${escapeHtml(w.st)}</span> · <span class="badge">SYNTHETIC DEMO</span></p>
+  <p class="hint">Location: approx ${w.a[0].toFixed(4)}, ${w.a[1].toFixed(4)} ${w.b?", line segment (approx)":""} — not surveyed geometry</p>
+  <h3 style="margin:12px 0 6px">Audit history</h3>
+  <ul style="margin:6px 0 12px;padding-left:20px;font-size:13px;color:var(--mut)">${(w.log||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+  ${n&&canEdit?`<button class="btn" id="adv">Mark as ${escapeHtml(n)}</button>`:`<p class="hint">${n?"Switch role to Collector/DDO or Department officer to update status (role simulation).":"This work is in terminal state."}</p>`}
+  ${!canEdit?`<p class="hint">Citizen view is read-only.</p>`:""}`;
+}
+
+function mapTab(){
+  const L=filtered();
+  return `<div class="card">
+    ${filters()}
+    ${placeSearch()}
+    <div id="map"></div>
+    ${legend()}
+    <p class="hint">Click marker/row to inspect. Use role selector (top) — simulation only, no authentication.</p>
+  </div>
+  <div class="card" id="det" style="margin-top:14px;display:${mapSel?"block":"none"}">${detail()}</div>
+  <div class="card scroll" style="margin-top:14px">
+    <table>
+      <thead><tr><th>Work ID</th><th>Work</th><th>Village</th><th>Type</th><th>Scheme</th><th>Cost</th><th>Status</th><th>Source</th></tr></thead>
+      <tbody>${rows(L)}</tbody>
+    </table>
+  </div>`;
+}
+
+function pubTab(){
+  const L=filtered().filter(w=>w.st!=="Proposed");
+  return `<div class="card">
+    <h2>Public read-only view</h2>
+    <p class="hint" style="margin-top:-4px">For citizens. No edit actions. Reporting is demonstration-only.</p>
+    ${filters()}
+    <div class="scroll" style="margin-top:10px">
+      <table>
+        <thead><tr><th>Work</th><th>Village</th><th>Agency</th><th>Type</th><th>Cost</th><th>Status</th><th>Report</th></tr></thead>
+        <tbody>${L.map(w=>`<tr><td>${escapeHtml(w.n)}</td><td>${escapeHtml(w.v)}</td><td>${SCH[w.s][0].split(" (")[0]}</td><td>${escapeHtml(w.t)}</td><td>₹${w.c} L</td><td><span class="tag ${ST(w.st)}">${escapeHtml(w.st)}</span></td><td><button class="btn alt rep" style="margin:0" data-id="${w.id}">Report issue (demo)</button></td></tr>`).join("")}</tbody>
+      </table>
+    </div>
+    <p class="hint" id="repmsg"></p>
+    <div class="disclosure">Demo only — reports are not sent/stored on a server; no official notification occurs.</div>
+  </div>`;
+}
+
+function impTab(){
+  return `<div class="card">
+    <h2>Bulk import (CSV)</h2>
+    <p class="hint" style="margin-top:-4px">Schema: scheme code (FC,GIDC,RB,DMF,TDD), village, type, name, cost (₹ lakh), status, year. Commas in quoted fields supported simply; validation applied. Uses shared matching rules.</p>
+    <div class="alert info"><strong>Note:</strong> Potential overlaps are flagged for review, not auto-dropped. Invalid rows are reported with reasons.</div>
+    <label for="csv">Paste CSV rows (one per line)</label>
+    <textarea id="csv" rows="8" style="font:13px monospace">FC,Hansot,Street light,"Hansot main road, street lights",14,Proposed,2026
+DMF,Vagra,Community hall,Vagra panchayat hall,28,Proposed,2026
+RB,Jambusar,Road,Jambusar Kaveli state road repair work,90,Proposed,2026</textarea>
+    <div class="row fit"><button class="btn" id="imp">Import with validation & duplicate screening</button><button class="btn alt" id="rst">Reset to demo data</button></div>
+    <p class="hint" role="status">${escapeHtml(impMsg)}</p>
+  </div>`;
+}
+
+function newTab(){
+  const o=(a,v)=>a.map(x=>`<option ${x==v?"selected":""}>${x}</option>`).join("");
+  return `<div class="grid g2">
+    <div class="card">
+      <h2>Step 1: Describe work</h2>
+      <label for="pv">Village</label><select id="pv">${o(Object.keys(V),P.village)}</select>
+      <label for="pt">Type of work</label><select id="pt">${o(TYPES,P.type)}</select>
+      <label for="pn">Name of work</label><input id="pn" value="${escapeHtml(P.name)}">
+      <label for="ps">Funding scheme</label><select id="ps">${Object.entries(SCH).map(([k,v])=>`<option value="${k}" ${P.scheme==k?"selected":""}>${v[0]}</option>`).join("")}</select>
+      <label for="pc">Estimated cost (₹ lakh)</label><input id="pc" type="number" min="0" step="0.1" value="${P.cost}">
+      <div class="row fit">
+        <button class="btn" id="chk">${t("Check for duplicates")}</button>
+        <button class="btn alt" id="demo">Load demo duplicate scenario</button>
+      </div>
+      <p class="hint">Click map to set approximate location. Cost must be a positive finite number.</p>
+      <div class="disclosure">Approximate location; not surveyed geometry. Matching uses rules with explainable evidence.</div>
+    </div>
+    <div class="card">
+      <h2>Step 2: Location & screening</h2>
+      ${placeSearch()}
+      <div id="map" style="height:380px"></div>
+      ${legend()}
+      <div id="res" aria-live="polite">${resHTML()}</div>
+    </div>
+  </div>`;
+}
+
+function resHTML(){
+  if(!res)return "";
+  if(!res.length)return `<div class="res ok"><h3>No potential match found in current registry</h3><p style="margin:0;font-size:13px">Verify relevant departmental records are available — checker cannot detect works absent from registry. A new demo Work ID will be issued on submission.</p></div><button class="btn" id="sub">Submit proposal</button>`;
+  const hi=res[0].score>=MATCH_CONFIG.minScoreHigh;
+  return `<div class="res ${hi?"bad":"mid"}"><h3>${hi?"High-priority potential overlap — review before approval":"Possible overlap requiring review"}</h3><p class="hint" style="margin-top:-2px">Rule-based score shown for explainability; not a probability.</p>
+  ${res.slice(0,6).map(m=>`<div style="margin-top:10px;padding:10px;background:var(--card);border-radius:8px;border:1px solid var(--line)">
+    <div><b><code>${m.w.id}</code></b> · ${escapeHtml(m.w.n)} · ${SCH[m.w.s][0].split(" (")[0]} · ${escapeHtml(m.w.v)} · ₹${m.w.c} L · <span class="tag ${ST(m.w.st)}">${escapeHtml(m.w.st)}</span></div>
+    <div class="hint" style="margin-top:4px">Dist: ~${Math.round(m.d)} m | Name sim ~${Math.round(m.ns*100)}% | Score: ${m.score} | Class: ${escapeHtml(m.cls)}</div>
+    <div style="font-size:13px;margin-top:6px"><strong>Matching signals:</strong><ul style="margin:4px 0 0;padding-left:18px">${m.evidence.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></div>
+    <div class="hint">Source: ${m.w.src==="synthetic"?"Synthetic demo":m.w.src} | Location: ${m.w.approx?"approximate":""}</div>
+  </div>`).join("")}
+  </div>
+  <label for="just">Review justification (required if proceeding despite warning)</label>
+  <input id="just" placeholder="Explain why this is a legitimate separate work or why proceeding is appropriate">
+  <div class="row fit">
+    <button class="btn" id="sub">Submit with review justification</button>
+    <button class="btn alt" id="wd">Withdraw proposal (recorded)</button>
+  </div>
+  <p class="hint" id="jm"></p>`;
+}
+
+function readForm(){
+  if(!$("pv"))return;
+  P.village=$("pv").value;P.type=$("pt").value;P.name=$("pn").value;P.scheme=$("ps").value;P.cost=$("pc").value;
+}
+
+function selWork(id,fly){
+  mapSel=id;
+  const d=$("det");
+  if(d){d.style.display="block";d.innerHTML=detail();wireAdv();}
+  if(fly&&map){const w=W.find(x=>x.id==id);if(w)map.flyTo(w.a,Math.max(map.getZoom(),13));}
+  if(MK[id])MK[id].openPopup();
+}
+
+function wireAdv(){
+  if($("adv")){
+    $("adv").onclick=()=>{
+      if(role==="Public")return;
+      const w=W.find(x=>x.id==mapSel);if(!w)return;
+      const n=NX[w.st];if(!n)return;
+      const prev=w.st;
+      w.st=n;
+      w.log=w.log||[];
+      const ts=new Date().toISOString();
+      w.log.push(`${new Date().toLocaleString("en-IN")}: status ${prev} → ${n} by role:${role}`);
+      auditLog.push({ts,event:"status_change",workId:w.id,prev,new:n,role});
+      casesReviewedSession++;
+      sv();render();
+    };
+  }
+}
+
+function drawPin(){
+  if(!map)return;
+  if(pinL)pinL.remove();
+  pinL=L.layerGroup([
+    L.circle(P.pos,{radius:MATCH_CONFIG.candidateRadiusM,color:"#b91c1c",weight:1.5,dashArray:"4 4",fillOpacity:.06}),
+    L.circleMarker(P.pos,{radius:7,color:"#fff",weight:2,fillColor:"#b91c1c",fillOpacity:1}).bindTooltip("New proposal (candidate radius shown)")
+  ]).addTo(map);
+}
+
+const TL=[
+  ["https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:"© OpenStreetMap contributors © CARTO"}],
+  ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Tiles © Esri"}],
+  ["https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}]
+];
+
+function baseLayer(i){
+  if(!map)return;
+  const m=map,l=L.tileLayer(TL[i][0],TL[i][1]).addTo(m);let err=0;
+  l.on("tileerror",()=>{
+    if(++err==3){
+      if(i<TL.length-1&&map===m){m.removeLayer(l);baseLayer(i+1);}
+      else if(map===m&&!$("tilemsg")){
+        const d=document.createElement("div");d.id="tilemsg";
+        d.style.cssText="position:absolute;z-index:1000;left:60px;right:10px;top:10px;background:var(--card);color:var(--ink);padding:10px 12px;border-radius:8px;font-size:13px;border:2px solid var(--bad)";
+        d.textContent="Map tiles may be blocked in this preview. Save file and open in browser with internet for best results.";
+        if(m.getContainer())m.getContainer().appendChild(d);
+      }
+    }
+  });
+}
+
+function mount(){
+  const el=$("map");map=null;MK={};
+  if(!el)return;
+  if(typeof L=="undefined"){el.innerHTML='<p class="hint" style="padding:20px">Leaflet failed to load. Check internet connection.</p>';return;}
+  try{
+    map=L.map(el).setView(view.c,view.z);
+    baseLayer(0);
+    map.on("moveend",()=>{const c=map.getCenter();view={c:[c.lat,c.lng],z:map.getZoom();}});
+    const srcList = tab=="map"?filtered():W;
+    srcList.forEach(w=>{
+      const ccol=SCH[w.s][1];
+      if(w.b)L.polyline([w.a,w.b],{color:ccol,weight:5,opacity:.85,dashArray:w.st=="Proposed"?"6 6":null}).addTo(map).on("click",()=>selWork(w.id));
+      MK[w.id]=L.circleMarker(w.a,{radius:7,color:"#fff",weight:2,fillColor:ccol,fillOpacity:1}).addTo(map).bindPopup(`<b>${escapeHtml(w.n)}</b><br>${escapeHtml(w.st)} · ₹${w.c} L<br><span style="font-size:11px">SYNTHETIC DEMO (approx)</span>`).on("click",()=>selWork(w.id));
+    });
+    if(tab=="new"){drawPin();map.on("click",e=>{P.pos=[e.latlng.lat,e.latlng.lng];readForm();res=check();drawPin();$("res").innerHTML=resHTML();wireRes();});}
+  }catch(e){el.innerHTML='<p class="hint" style="padding:20px">Map init error.</p>';}
+}
+
+function wireRes(){
+  if($("sub")){
+    $("sub").onclick=()=>{
+      readForm();
+      const costNum=Number(P.cost);
+      if(!P.name||P.name.trim().length<3){alert("Enter a valid work name (min 3 chars).");return;}
+      if(!P.village||!SCH[P.scheme]||!TYPES.includes(P.type)){alert("Invalid scheme/type/village.");return;}
+      if(!Number.isFinite(costNum)||costNum<=0){alert("Estimated cost must be a positive finite number.");return;}
+      if(!P.pos){alert("Set location on map.");return;}
+      const dup=res&&res.length;
+      if(dup){
+        const j=$("just");
+        if(!j||!j.value.trim()){if($("jm"))$("jm").textContent="Enter review justification to proceed, or withdraw.";return;}
+      }
+      const existingIds=new Set(W.map(x=>x.id));
+      let id="";
+      let tries=0;
+      while(tries<100){
+        const cand=`BRH-2026-${P.scheme}-${String(1000+W.length+tries).padStart(4,"0")}`;
+        if(!existingIds.has(cand)){id=cand;break;}
+        tries++;
+      }
+      if(!id)id=`BRH-2026-${P.scheme}-${Date.now().toString().slice(-6)}`;
+      const ts=new Date().toISOString();
+      W.push({id,s:P.scheme,v:P.village,t:P.type,n:P.name.trim(),c:costNum,st:"Proposed",y:2026,a:[+P.pos[0],+P.pos[1]],b:null,log:[`${new Date().toLocaleString("en-IN")}: proposed by role:${role}${dup?" with review justification": " (no potential match found)"}`],src:"demo-proposal",approx:true});
+      if(dup){const j=$("just");if(j&&j.value.trim()){auditLog.push({ts,event:"proposal_submitted_with_overlap_justification",workId:id,role,justification:j.value.trim()});}}
+      else {auditLog.push({ts,event:"proposal_submitted_no_match",workId:id,role});}
+      casesReviewedSession++;
+      sv();res=null;tab="map";mapSel=id;view={c:P.pos,z:13};render();
+    };
+  }
+  if($("wd")){
+    $("wd").onclick=()=>{
+      proposalsWithdrawn++;
+      const ts=new Date().toISOString();
+      auditLog.push({ts,event:"proposal_withdrawn_during_review",role});
+      res=null;tab="dash";render();
+    };
+  }
+}
+
+function wire(){
+  ["fq","fs","fst"].forEach(id=>{
+    const e=$(id);
+    if(e){
+      const fn=()=>{filt={q:$("fq")?$("fq").value:"",s:$("fs")?$("fs").value:"",st:$("fst")?$("fst").value:""};render();};
+      e.onchange=fn;e.oninput=fn;
+    }
+  });
+  if($("clr"))$("clr").onclick=()=>{filt={q:"",s:"",st:""};render();};
+  document.querySelectorAll("tr[data-id]").forEach(e=>e.onclick=()=>selWork(e.dataset.id,true));
+  document.querySelectorAll(".rep").forEach(b=>b.onclick=()=>{
+    const msg=$("repmsg");
+    if(msg){
+      msg.innerHTML=`<span style="color:var(--warn);font-weight:600">Demo only — this report for ${escapeHtml(b.dataset.id)} has NOT been sent or stored. No District Development Office notification occurred.</span>`;
+    }
+    const ts=new Date().toISOString();
+    auditLog.push({ts,event:"citizen_report_demo",workId:b.dataset.id});
+    sv();
+  });
+  wireAdv();wireRes();
+  if($("pg")){
+    $("pg").onclick=async()=>{
+      const q=$("pq");if(!q)return;const qq=q.value.trim();if(!qq)return;
+      const pm=$("pm");if(pm)pm.textContent="Searching...";
+      try{
+        const r1=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(qq+", Bharuch, Gujarat"));
+        const j1=await r1.json();
+        if(j1.length&&map){map.flyTo([+j1[0].lat,+j1[0].lon],14);if(pm)pm.textContent="Showing: "+j1[0].display_name;return;}
+      }catch(_){}
+      try{
+        const r2=await fetch("https://photon.komoot.io/api/?limit=1&lat=21.7&lon=73&q="+encodeURIComponent(qq));
+        const j2=await r2.json();const f=j2.features&&j2.features[0];
+        if(f&&map){map.flyTo([f.geometry.coordinates[1],f.geometry.coordinates[0]],14);if(pm)pm.textContent="Showing: "+(f.properties.name||qq);return;}
+      }catch(_){}
+      if(pm)pm.textContent="Search failed or no result. Try a nearby village name.";
+    };
+  }
+  if($("chk")){
+    $("chk").onclick=()=>{
+      readForm();
+      const costNum=Number(P.cost);
+      if(!P.name||P.name.trim().length<3){alert("Enter a valid work name (min 3 chars).");return;}
+      if(!Number.isFinite(costNum)||costNum<=0){alert("Cost must be a positive finite number.");return;}
+      if(!P.pos){alert("Click the map to set location first.");return;}
+      res=check();$("res").innerHTML=resHTML();wireRes();drawPin();
+    };
+  }
+  if($("demo")){
+    $("demo").onclick=()=>{
+      // Load scenario similar to Valia road with overlap
+      P={village:"Valia",type:"Road",name:"Valia market road",scheme:"FC",cost:45,pos:off("Valia",-3,1)};
+      res=check();view={c:P.pos,z:14};render();$("res").innerHTML=resHTML();wireRes();
+    };
+  }
+  if($("rst")){
+    $("rst").onclick=()=>{
+      if(!confirm("Reset to original demo dataset? This will overwrite local changes in this browser."))return;
+      W=JSON.parse(W0);
+      proposalsWithdrawn=0;overlapsFlaggedSession=0;casesReviewedSession=0;confirmedDuplicatesSession=0;
+      try{localStorage.removeItem("bwlive_v2");localStorage.removeItem("bwlive_audit");}catch(_){}
+      impMsg="Demo data restored to original synthetic set.";
+      mapSel=null;res=null;tab="dash";
+      render();
+    };
+  }
+  if($("imp")){
+    $("imp").onclick=()=>{
+      const ta=$("csv");if(!ta)return;
+      const text=ta.value;
+      // simple CSV parse (handles basic quotes)
+      const rows=[];
+      let cur="",inq=false;
+      for(let i=0;i<text.length;i++){
+        const ch=text[i];
+        if(ch==='"'){inq=!inq;continue;}
+        if(ch===','&&!inq){rows.push(cur);cur="";continue;}
+        if((ch==='\n'||ch==='\r')&&!inq){if(cur.length||rows.length){rows.push(cur);cur="";/* flush row */ /* handle */}}
+        else cur+=ch;
+      }
+      if(cur.length||rows.length){/* end */ rows.push(cur);}
+      // rebuild by newlines properly
+      const lineRows=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim().length);
+      let ok=0,rej=[],conf=[],ov=[];
+      const existingIds=new Set(W.map(x=>x.id));
+      lineRows.forEach((lr,idx)=>{
+        // parse with quotes
+        const parts=[];let c2="",q2=false;
+        for(let i=0;i<lr.length;i++){
+          const ch=lr[i];
+          if(ch==='"'){q2=!q2;continue;}
+          if(ch===','&&!q2){parts.push(c2.trim());c2="";continue;}
+          c2+=ch;
+        }
+        parts.push(c2.trim());
+        if(parts.length<7){rej.push(`Row ${idx+1}: insufficient columns (need scheme,village,type,name,cost,status,year)`);return;}
+        const [s,v,ty,nm,cst,st,y]=parts;
+        if(!SCH[s]){rej.push(`Row ${idx+1} (${nm}): unknown scheme '${s}'`);return;}
+        if(!V[v]){rej.push(`Row ${idx+1} (${nm}): unknown village '${v}'`);return;}
+        if(!TYPES.includes(ty)){rej.push(`Row ${idx+1} (${nm}): unknown type '${ty}'`);return;}
+        const cnum=Number(cst);
+        if(!Number.isFinite(cnum)||cnum<=0){rej.push(`Row ${idx+1} (${nm}): invalid cost`);return;}
+        if(!["Proposed","Approved","In progress","Completed"].includes(st)){rej.push(`Row ${idx+1} (${nm}): invalid status`);return;}
+        const ynum=Number(y);
+        if(!Number.isFinite(ynum)||ynum<2000||ynum>2100){rej.push(`Row ${idx+1} (${nm}): invalid year`);return;}
+        // check exact id collision by generated pattern? check content duplicates
+        const dupCand = W.find(w=>w.v===v && w.t===ty && sim(nm,w.n)>=0.4);
+        if(dupCand){ov.push(`Row ${idx+1} (${nm}): potential overlap with ${dupCand.id} (similar name/type/village)`);/* don't auto-import? still allow but flag */ }
+        // generate id
+        let nid="";
+        let tr=0;
+        while(tr<200){const cand=`BRH-${ynum}-${s}-${String(2000+W.length+tr).padStart(4,"0")}`;if(!existingIds.has(cand)){nid=cand;break;}tr++;}
+        if(!nid)nid=`BRH-${ynum}-${s}-${Date.now().toString().slice(-6)}${tr}`;
+        existingIds.add(nid);
+        const jitter=()=> (Math.random()-0.5)*0.006;
+        W.push({id:nid,s,v,t:ty,n:nm.trim(),c:cnum,st,y:ynum,a:[V[v][0]+jitter(),V[v][1]+jitter()],b:null,log:[`Bulk imported (row ${idx+1}) - synthetic/demo coords`],src:"imported-demo",approx:true});
+        ok++;
+      });
+      sv();
+      let msg=`Imported: ${ok}. Rejected: ${rej.length}. Potential overlaps flagged: ${ov.length}.`;
+      if(rej.length) msg+=` | Rej: ${rej.slice(0,3).join(" | ")}${rej.length>3?" ...":""}`;
+      if(ov.length) msg+=` | Overlap flags: ${ov.slice(0,2).join(" | ")}${ov.length>2?" ...":""}`;
+      impMsg=msg;
+      render();
+    };
+  }
+}
+
+function testsTab(){
+  const scenarios=[
+    {id:"T1",name:"Same project, same location, different schemes",g:"Legitimate separate? depends",exp:"Review required, explain evidence"},
+    {id:"T2",name:"Same project different spelling",g:"Likely same",exp:"High match via normalization"},
+    {id:"T3",name:"Similar title different location",g:"Separate",exp:"Low score without proximity"},
+    {id:"T4",name:"Same village/type different road segments",g:"Likely separate",exp:"Proximity+type alone weak; need evidence"},
+    {id:"T5",name:"Completed work, repeat repair later",g:"Legit possible",exp:"Consider history, don't auto-reject"},
+    {id:"T6",name:"Nearby different types",g:"Separate",exp:"Score low"},
+    {id:"T7",name:"Missing location data",g:"Uncertain",exp:"Cannot rely on distance"},
+    {id:"T8",name:"Incomplete description",g:"Uncertain",exp:"Text sim limited"},
+    {id:"T9",name:"Exact existing record imported again",g:"Dup/flag",exp:"Flag for review"},
+    {id:"T10",name:"No plausible match",g:"New",exp:"No-match message, no false positive"}
+  ];
+  // quick self-test using current logic
+  const res=[];
+  try{
+    // T3
+    const p3={pos:[21.7,73.0],village:"Bharuch",type:"Road",name:"Test road",scheme:"FC",cost:10,y:2026};
+    const m3=sharedMatch(W.find(x=>x.id==="BRH-2023-RB-0027"),p3); res.push({id:"T3",pass:m3.score<3,got:m3.score+":"+m3.cls});
+    // T6 different type
+    const p6={pos:W[0].a,village:W[0].v,type:"Drain",name:W[0].n,scheme:"FC",cost:10,y:2026};
+    const m6=sharedMatch(W[0],p6); res.push({id:"T6",pass:m6.score<=2,got:m6.score+":"+m6.cls});
+  }catch(e){res.push({id:"ERR",pass:false,got:String(e)})}
+  return `<div class="card">
+    <h2>Deterministic evaluation (synthetic)</h2>
+    <p class="hint">Test scenarios defined a priori. Results are from current rule-based implementation on synthetic data — not real-world validation.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>ID</th><th>Scenario</th><th>Ground truth (intended)</th><th>Expected</th><th>Quick check</th></tr></thead>
+        <tbody>${scenarios.map(s=>`<tr><td>${s.id}</td><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.g)}</td><td>${escapeHtml(s.exp)}</td><td>-</td></tr>`).join("")}</tbody>
+      </table>
+    </div>
+    <h3 style="margin:16px 0 8px">Quick runtime checks</h3>
+    <ul>${res.map(r=>`<li>${r.id}: ${r.pass?"PASS":"CHECK"} (${escapeHtml(r.got)})</li>`).join("")}</ul>
+    <div class="alert warn">Thresholds not tuned on this test set for reported performance. Precision/recall would need labeled corpus; not computed to avoid overstating accuracy.</div>
+  </div>`;
+}
+
+function render(){
+  nav();
+  const body={
+    dash:dash(),
+    map:mapTab(),
+    new:newTab(),
+    imp:impTab(),
+    pub:pubTab(),
+    tests:testsTab()
+  }[tab]||dash();
+  $("app").innerHTML=body;
+  wire();
+  mount();
+}
+
+render();
+</script>
+</body>
+</html>
